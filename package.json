@@ -7,7 +7,8 @@
     "prettier": "prettier --loglevel silent --write \"**/*.{md,jsx,tsx,ts,json,html,css,js,yml}\"",
     "lint:fix": "npx eslint --fix --max-warnings 0 \"**/*.{jsx,tsx,ts,js}\"",
     "lint": "npx eslint --max-warnings 0 \"**/*.{jsx,tsx,ts,js}\"",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "build": "npx ncc build index.ts --license licenses.txt"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
     "@types/node": "^16.11.9",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
+    "@vercel/ncc": "^0.32.0",
     "eslint": "^8.3.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.3.0",
@@ -31,5 +33,9 @@
     "husky": "^7.0.4",
     "prettier": "^2.4.1",
     "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.0"
   }
 }
