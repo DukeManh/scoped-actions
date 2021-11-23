@@ -1,13 +1,9 @@
 name: 'scoped-actions'
 description: 'Run GitHub actions only on necessary scopes'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
-    required: true
-    default: 'World'
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+  run-step:
+    description: 'Command to be run, can specify many commands, e.g, run-1: npm install, run-2 npm start'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'

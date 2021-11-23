@@ -9,14 +9,10 @@ jobs:
       # you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Hello world action step
+      - name: Run scoped actions
         uses: ./ # Uses an action in the root directory
-        id: hello
         with:
-          who-to-greet: 'Mona the Octocat'
+          $0: 'npm install'
+          $1: 'npm run prettier'
+          $2: 'npm run lint'
       # Use the output from the `hello` step
-      - name: Get the output time
-        run: | 
-            echo "The time was ${{ steps.hello.outputs.time }}" 
-            npm ci
-            npm run lint
