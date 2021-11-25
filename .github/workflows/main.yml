@@ -9,10 +9,15 @@ jobs:
       # you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2
+      - id: files
+        uses: jitterbit/get-changed-files@v1
+        with:
+          format: csv
+          token: ${{ github.token }}
       - name: Run scoped actions
         uses: ./ # Uses an action in the root directory
         with:
-          $0: 'npm install'
-          $1: 'npm run prettier'
-          $2: 'npm run lint'
-      # Use the output from the `hello` step
+          files: ${{ steps.files.outputs.all}}
+          s0: 'npm install'
+          s1: 'npm run prettier'
+          s2: 'npm run lint'
