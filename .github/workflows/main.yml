@@ -1,0 +1,23 @@
+on: [push]
+
+jobs:
+  hello_world_job:
+    runs-on: ubuntu-latest
+    name: A job to say hello
+    steps:
+      # To use this repository's private action,
+      # you must check out the repository
+      - name: Checkout
+        uses: actions/checkout@v2
+      - id: files
+        uses: jitterbit/get-changed-files@v1
+        with:
+          format: csv
+          token: ${{ github.token }}
+      - name: Run scoped actions
+        uses: ./ # Uses an action in the root directory
+        with:
+          files: ${{ steps.files.outputs.added_modified}}
+          s0: 'npm install'
+          s1: 'npx prettier --check'
+          s2: 'npm run lint'
