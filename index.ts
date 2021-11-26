@@ -5,6 +5,28 @@ import { ESLint } from 'eslint';
 
 const getCommand = (step: number) => core.getInput(`s${step}`);
 
+async function runPrettier(command: string, changedFiles: string[]) {
+  await exec.getExecOutput(command, [...changedFiles, '--ignore-unknown']);
+}
+
+async function runLint(command: string, changedFiles: string[]) {
+  const eslint = new ESLint();
+  const files: string[] = [];
+
+  for (let i = 0; i < changedFiles.length; i += 1) {
+    const isIgnored = await eslint.isPathIgnored(changedFiles[i]);
+    if (!isIgnored) {
+      files.push(changedFiles[i]);
+    }
+  }
+
+  await exec.getExecOutput(command, files);
+}
+
+// async function runTest(command: string, files: string[]) {
+//   await exec.getExecOutput('npx prettier --check', [...files, '--ignore-unknown']);
+// }
+
 async function main() {
   try {
     let step = 0;
@@ -14,18 +36,9 @@ async function main() {
     while (command) {
       console.log(command);
       if (command.match(/prettier/)) {
-        await exec.getExecOutput('npx prettier --check', [...changedFiles, '--ignore-unknown']);
+        runPrettier(command, changedFiles);
       } else if (command.match(/(eslint|lint)/)) {
-        const eslint = new ESLint();
-        const files: string[] = [];
-        for (let i = 0; i < changedFiles.length; i += 1) {
-          const isIgnored = await eslint.isPathIgnored(changedFiles[i]);
-          if (!isIgnored) {
-            files.push(changedFiles[i]);
-          }
-        }
-        console.log(files);
-        await exec.getExecOutput('npm run lint', files);
+        runLint(command, changedFiles);
       } else {
         await exec.getExecOutput(command, []);
       }

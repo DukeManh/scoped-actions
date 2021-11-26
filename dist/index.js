@@ -107793,13 +107793,58 @@ var core = __importStar(__nccwpck_require__(42186));
 var exec = __importStar(__nccwpck_require__(71514));
 var eslint_1 = __nccwpck_require__(28906);
 var getCommand = function (step) { return core.getInput("s" + step); };
-function main() {
+function runPrettier(command, changedFiles) {
     return __awaiter(this, void 0, void 0, function () {
-        var step, command, changedFiles, eslint, files, i, isIgnored, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, exec.getExecOutput(command, __spreadArray(__spreadArray([], changedFiles, true), ['--ignore-unknown'], false))];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function runLint(command, changedFiles) {
+    return __awaiter(this, void 0, void 0, function () {
+        var eslint, files, i, isIgnored;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 14, , 15]);
+                    eslint = new eslint_1.ESLint();
+                    files = [];
+                    i = 0;
+                    _a.label = 1;
+                case 1:
+                    if (!(i < changedFiles.length)) return [3 /*break*/, 4];
+                    return [4 /*yield*/, eslint.isPathIgnored(changedFiles[i])];
+                case 2:
+                    isIgnored = _a.sent();
+                    if (!isIgnored) {
+                        files.push(changedFiles[i]);
+                    }
+                    _a.label = 3;
+                case 3:
+                    i += 1;
+                    return [3 /*break*/, 1];
+                case 4: return [4 /*yield*/, exec.getExecOutput(command, files)];
+                case 5:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+// async function runTest(command: string, files: string[]) {
+//   await exec.getExecOutput('npx prettier --check', [...files, '--ignore-unknown']);
+// }
+function main() {
+    return __awaiter(this, void 0, void 0, function () {
+        var step, command, changedFiles, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 8, , 9]);
                     step = 0;
                     command = getCommand(step);
                     changedFiles = core.getInput('files').split(',');
@@ -107808,51 +107853,29 @@ function main() {
                     _a.sent();
                     _a.label = 2;
                 case 2:
-                    if (!command) return [3 /*break*/, 13];
+                    if (!command) return [3 /*break*/, 7];
                     console.log(command);
-                    if (!command.match(/prettier/)) return [3 /*break*/, 4];
-                    return [4 /*yield*/, exec.getExecOutput('npx prettier --check', __spreadArray(__spreadArray([], changedFiles, true), ['--ignore-unknown'], false))];
+                    if (!command.match(/prettier/)) return [3 /*break*/, 3];
+                    runPrettier(command, changedFiles);
+                    return [3 /*break*/, 6];
                 case 3:
-                    _a.sent();
-                    return [3 /*break*/, 12];
-                case 4:
-                    if (!command.match(/(eslint|lint)/)) return [3 /*break*/, 10];
-                    eslint = new eslint_1.ESLint();
-                    files = [];
-                    i = 0;
-                    _a.label = 5;
+                    if (!command.match(/(eslint|lint)/)) return [3 /*break*/, 4];
+                    runLint(command, changedFiles);
+                    return [3 /*break*/, 6];
+                case 4: return [4 /*yield*/, exec.getExecOutput(command, [])];
                 case 5:
-                    if (!(i < changedFiles.length)) return [3 /*break*/, 8];
-                    return [4 /*yield*/, eslint.isPathIgnored(changedFiles[i])];
+                    _a.sent();
+                    _a.label = 6;
                 case 6:
-                    isIgnored = _a.sent();
-                    if (!isIgnored) {
-                        files.push(changedFiles[i]);
-                    }
-                    _a.label = 7;
-                case 7:
-                    i += 1;
-                    return [3 /*break*/, 5];
-                case 8:
-                    console.log(files);
-                    return [4 /*yield*/, exec.getExecOutput('npm run lint', files)];
-                case 9:
-                    _a.sent();
-                    return [3 /*break*/, 12];
-                case 10: return [4 /*yield*/, exec.getExecOutput(command, [])];
-                case 11:
-                    _a.sent();
-                    _a.label = 12;
-                case 12:
                     step += 1;
                     command = getCommand(step);
                     return [3 /*break*/, 2];
-                case 13: return [3 /*break*/, 15];
-                case 14:
+                case 7: return [3 /*break*/, 9];
+                case 8:
                     error_1 = _a.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 15];
-                case 15: return [2 /*return*/];
+                    return [3 /*break*/, 9];
+                case 9: return [2 /*return*/];
             }
         });
     });
