@@ -17,7 +17,7 @@ jobs:
       - name: Run scoped actions
         uses: ./ # Uses an action in the root directory
         with:
-          files: ${{ steps.files.outputs.all}}
+          files: ${{ steps.files.outputs.added_modified}}
           s0: 'npm install'
-          s1: 'npm run prettier'
+          s1: 'npx prettier --check'
           s2: 'npm run lint'
