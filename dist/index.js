@@ -107835,47 +107835,99 @@ function runLint(command, changedFiles) {
         });
     });
 }
-// async function runTest(command: string, files: string[]) {
-//   await exec.getExecOutput('npx prettier --check', [...files, '--ignore-unknown']);
-// }
+function runTest(command, files) {
+    return __awaiter(this, void 0, void 0, function () {
+        var stdout, workspaces, changedWorkSpaces, errorDetected, _i, changedWorkSpaces_1, ws, _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, exec.getExecOutput("find . -type d -name node_modules -prune -o -name package.json -printf '%h\\n'")];
+                case 1:
+                    stdout = (_b.sent()).stdout;
+                    workspaces = stdout.split(/\n/);
+                    changedWorkSpaces = [];
+                    files.forEach(function (file) {
+                        var match = '';
+                        workspaces.forEach(function (ws) {
+                            match = file.startsWith(ws) && ws.length > match.length ? ws : match;
+                        });
+                        if (match) {
+                            changedWorkSpaces.push(match);
+                        }
+                    });
+                    errorDetected = false;
+                    _i = 0, changedWorkSpaces_1 = changedWorkSpaces;
+                    _b.label = 2;
+                case 2:
+                    if (!(_i < changedWorkSpaces_1.length)) return [3 /*break*/, 7];
+                    ws = changedWorkSpaces_1[_i];
+                    _b.label = 3;
+                case 3:
+                    _b.trys.push([3, 5, , 6]);
+                    return [4 /*yield*/, exec.exec(command, [ws])];
+                case 4:
+                    _b.sent();
+                    return [3 /*break*/, 6];
+                case 5:
+                    _a = _b.sent();
+                    errorDetected = true;
+                    return [3 /*break*/, 6];
+                case 6:
+                    _i++;
+                    return [3 /*break*/, 2];
+                case 7:
+                    if (errorDetected) {
+                        throw new Error('Run test failed');
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 function main() {
     return __awaiter(this, void 0, void 0, function () {
         var step, command, changedFiles, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 8, , 9]);
+                    _a.trys.push([0, 10, , 11]);
                     step = 0;
                     command = getCommand(step);
                     changedFiles = core.getInput('files').split(',');
                     return [4 /*yield*/, exec.getExecOutput('pwd')];
                 case 1:
                     _a.sent();
-                    _a.label = 2;
+                    return [4 /*yield*/, exec.getExecOutput('cat .eslintrc.js')];
                 case 2:
-                    if (!command) return [3 /*break*/, 7];
-                    console.log(command);
-                    if (!command.match(/prettier/)) return [3 /*break*/, 3];
-                    runPrettier(command, changedFiles);
-                    return [3 /*break*/, 6];
-                case 3:
-                    if (!command.match(/(eslint|lint)/)) return [3 /*break*/, 4];
-                    runLint(command, changedFiles);
-                    return [3 /*break*/, 6];
-                case 4: return [4 /*yield*/, exec.getExecOutput(command, [])];
-                case 5:
                     _a.sent();
-                    _a.label = 6;
-                case 6:
+                    _a.label = 3;
+                case 3:
+                    if (!command) return [3 /*break*/, 9];
+                    console.log(command);
+                    if (!command.match(/prettier/)) return [3 /*break*/, 4];
+                    runPrettier(command, changedFiles);
+                    return [3 /*break*/, 8];
+                case 4:
+                    if (!command.match(/(eslint|lint)/)) return [3 /*break*/, 5];
+                    runLint(command, changedFiles);
+                    return [3 /*break*/, 8];
+                case 5:
+                    if (!command.match(/(jest|test)/)) return [3 /*break*/, 6];
+                    runTest(command, changedFiles);
+                    return [3 /*break*/, 8];
+                case 6: return [4 /*yield*/, exec.getExecOutput(command, [])];
+                case 7:
+                    _a.sent();
+                    _a.label = 8;
+                case 8:
                     step += 1;
                     command = getCommand(step);
-                    return [3 /*break*/, 2];
-                case 7: return [3 /*break*/, 9];
-                case 8:
+                    return [3 /*break*/, 3];
+                case 9: return [3 /*break*/, 11];
+                case 10:
                     error_1 = _a.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 9];
-                case 9: return [2 /*return*/];
+                    return [3 /*break*/, 11];
+                case 11: return [2 /*return*/];
             }
         });
     });

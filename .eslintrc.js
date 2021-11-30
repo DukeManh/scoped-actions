@@ -28,13 +28,13 @@ module.exports = {
     'no-nested-ternary': 'off',
     'no-empty': 'off',
     'arrow-body-style': ['warn', 'as-needed'],
-    'import/extensions': [
-      'error',
-      'ignorePackages',
-      {
-        js: 'never',
-        ts: 'never',
-      },
-    ],
+    // 'import/extensions': [
+    //   'error',
+    //   'ignorePackages',
+    //   {
+    //     js: 'never',
+    //     ts: 'never',
+    //   },
+    // ],
   },
 };
