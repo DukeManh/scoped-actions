@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import minimatch from 'minimatch';
 import { ESLint } from 'eslint';
 
 const getCommand = (step: number) => core.getInput(`s${step}`);
@@ -12,19 +13,26 @@ async function runPrettier(command: string, changedFiles: string[]) {
 async function runLint(command: string, changedFiles: string[]) {
   const eslint = new ESLint();
   const files: string[] = [];
+  const eslintTarget = core.getInput('eslintTarget');
 
+  console.log(eslintTarget);
   for (let i = 0; i < changedFiles.length; i += 1) {
-    const isIgnored = await eslint.isPathIgnored(changedFiles[i]);
+    const isIgnored =
+      (await eslint.isPathIgnored(changedFiles[i])) ||
+      (eslintTarget ? !minimatch(changedFiles[i], eslintTarget) : false);
     if (!isIgnored) {
       files.push(changedFiles[i]);
     }
   }
 
-  await exec.getExecOutput(command, files);
+  if (files.length) {
+    await exec.getExecOutput(command, files);
+  } else {
+    console.log('No files need linting');
+  }
 }
 
 async function runTest(command: string, files: string[]) {
-  // npm run jest
   const { stdout } = await exec.getExecOutput(
     "find . -type d -name node_modules -prune -o -name package.json -printf '%h\\n'"
   );
@@ -59,19 +67,19 @@ async function runTest(command: string, files: string[]) {
 
 async function main() {
   try {
+    const changedFiles = core.getInput('files').split(',');
+    console.log(`Changed files: ${changedFiles}`);
+
     let step = 0;
     let command = getCommand(step);
-    const changedFiles = core.getInput('files').split(',');
-    await exec.getExecOutput('pwd');
-    await exec.getExecOutput('cat .eslintrc.js');
+
     while (command) {
-      console.log(command);
       if (command.match(/prettier/)) {
-        runPrettier(command, changedFiles);
+        await runPrettier(command, changedFiles);
       } else if (command.match(/(eslint|lint)/)) {
-        runLint(command, changedFiles);
+        await runLint(command, changedFiles);
       } else if (command.match(/(jest|test)/)) {
-        runTest(command, changedFiles);
+        await runTest(command, changedFiles);
       } else {
         await exec.getExecOutput(command, []);
       }

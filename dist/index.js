@@ -107787,10 +107787,14 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 /* eslint-disable no-await-in-loop */
 var core = __importStar(__nccwpck_require__(42186));
 var exec = __importStar(__nccwpck_require__(71514));
+var minimatch_1 = __importDefault(__nccwpck_require__(83973));
 var eslint_1 = __nccwpck_require__(28906);
 var getCommand = function (step) { return core.getInput("s" + step); };
 function runPrettier(command, changedFiles) {
@@ -107807,19 +107811,22 @@ function runPrettier(command, changedFiles) {
 }
 function runLint(command, changedFiles) {
     return __awaiter(this, void 0, void 0, function () {
-        var eslint, files, i, isIgnored;
+        var eslint, files, eslintTarget, i, isIgnored;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     eslint = new eslint_1.ESLint();
                     files = [];
+                    eslintTarget = core.getInput('eslintTarget');
+                    console.log(eslintTarget);
                     i = 0;
                     _a.label = 1;
                 case 1:
                     if (!(i < changedFiles.length)) return [3 /*break*/, 4];
                     return [4 /*yield*/, eslint.isPathIgnored(changedFiles[i])];
                 case 2:
-                    isIgnored = _a.sent();
+                    isIgnored = (_a.sent()) ||
+                        (eslintTarget ? !(0, minimatch_1.default)(changedFiles[i], eslintTarget) : false);
                     if (!isIgnored) {
                         files.push(changedFiles[i]);
                     }
@@ -107827,10 +107834,16 @@ function runLint(command, changedFiles) {
                 case 3:
                     i += 1;
                     return [3 /*break*/, 1];
-                case 4: return [4 /*yield*/, exec.getExecOutput(command, files)];
+                case 4:
+                    if (!files.length) return [3 /*break*/, 6];
+                    return [4 /*yield*/, exec.getExecOutput(command, files)];
                 case 5:
                     _a.sent();
-                    return [2 /*return*/];
+                    return [3 /*break*/, 7];
+                case 6:
+                    console.log('No files need linting');
+                    _a.label = 7;
+                case 7: return [2 /*return*/];
             }
         });
     });
@@ -107885,49 +107898,49 @@ function runTest(command, files) {
 }
 function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var step, command, changedFiles, error_1;
+        var changedFiles, step, command, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 10, , 11]);
+                    _a.trys.push([0, 11, , 12]);
+                    changedFiles = core.getInput('files').split(',');
+                    console.log("Changed files: " + changedFiles);
                     step = 0;
                     command = getCommand(step);
-                    changedFiles = core.getInput('files').split(',');
-                    return [4 /*yield*/, exec.getExecOutput('pwd')];
+                    _a.label = 1;
                 case 1:
-                    _a.sent();
-                    return [4 /*yield*/, exec.getExecOutput('cat .eslintrc.js')];
+                    if (!command) return [3 /*break*/, 10];
+                    if (!command.match(/prettier/)) return [3 /*break*/, 3];
+                    return [4 /*yield*/, runPrettier(command, changedFiles)];
                 case 2:
                     _a.sent();
-                    _a.label = 3;
+                    return [3 /*break*/, 9];
                 case 3:
-                    if (!command) return [3 /*break*/, 9];
-                    console.log(command);
-                    if (!command.match(/prettier/)) return [3 /*break*/, 4];
-                    runPrettier(command, changedFiles);
-                    return [3 /*break*/, 8];
-                case 4:
                     if (!command.match(/(eslint|lint)/)) return [3 /*break*/, 5];
-                    runLint(command, changedFiles);
-                    return [3 /*break*/, 8];
-                case 5:
-                    if (!command.match(/(jest|test)/)) return [3 /*break*/, 6];
-                    runTest(command, changedFiles);
-                    return [3 /*break*/, 8];
-                case 6: return [4 /*yield*/, exec.getExecOutput(command, [])];
-                case 7:
+                    return [4 /*yield*/, runLint(command, changedFiles)];
+                case 4:
                     _a.sent();
-                    _a.label = 8;
+                    return [3 /*break*/, 9];
+                case 5:
+                    if (!command.match(/(jest|test)/)) return [3 /*break*/, 7];
+                    return [4 /*yield*/, runTest(command, changedFiles)];
+                case 6:
+                    _a.sent();
+                    return [3 /*break*/, 9];
+                case 7: return [4 /*yield*/, exec.getExecOutput(command, [])];
                 case 8:
+                    _a.sent();
+                    _a.label = 9;
+                case 9:
                     step += 1;
                     command = getCommand(step);
-                    return [3 /*break*/, 3];
-                case 9: return [3 /*break*/, 11];
-                case 10:
+                    return [3 /*break*/, 1];
+                case 10: return [3 /*break*/, 12];
+                case 11:
                     error_1 = _a.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 11];
-                case 11: return [2 /*return*/];
+                    return [3 /*break*/, 12];
+                case 12: return [2 /*return*/];
             }
         });
     });
