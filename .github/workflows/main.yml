@@ -19,5 +19,6 @@ jobs:
         with:
           files: ${{ steps.files.outputs.added_modified}}
           s0: 'npm install'
-          s1: 'npx prettier --check'
+          s1: 'npm run prettier-check'
           s2: 'npm run lint'
+          eslintTarget: '**/*.{jsx,tsx,ts,js}'
