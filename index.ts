@@ -7,7 +7,7 @@ import { ESLint } from 'eslint';
 const getCommand = (step: number) => core.getInput(`s${step}`);
 
 async function runPrettier(command: string, changedFiles: string[]) {
-  await exec.getExecOutput(command, [...changedFiles, '--ignore-unknown']);
+  await exec.getExecOutput(command, ['--', '--ignore-unknown', ...changedFiles]);
 }
 
 async function runLint(command: string, changedFiles: string[]) {
@@ -15,18 +15,17 @@ async function runLint(command: string, changedFiles: string[]) {
   const files: string[] = [];
   const eslintTarget = core.getInput('eslintTarget');
 
-  console.log(eslintTarget);
   for (let i = 0; i < changedFiles.length; i += 1) {
     const isIgnored =
       (await eslint.isPathIgnored(changedFiles[i])) ||
-      (eslintTarget ? !minimatch(changedFiles[i], eslintTarget) : false);
+      (eslintTarget && !minimatch(changedFiles[i], eslintTarget));
     if (!isIgnored) {
       files.push(changedFiles[i]);
     }
   }
 
   if (files.length) {
-    await exec.getExecOutput(command, files);
+    await exec.exec(command, files);
   } else {
     console.log('No files need linting');
   }

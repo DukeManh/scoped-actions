@@ -6,7 +6,6 @@ tasks:
   - name: scoped-actions
     openMode: split-left
     init: |
-      brew install act 
       cd /workspace/scoped-actions
       npm install
 
@@ -15,5 +14,9 @@ tasks:
     init: |
       cd /workspace
       git clone -b test-repo --single-branch https://github.com/DukeManh/scoped-actions.git test-repo
-    command: |
       cd /workspace/test-repo
+      npm install
+
+  - openMode: tab-after
+    init: cd /workspace
+    command: brew install act

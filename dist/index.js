@@ -107801,7 +107801,7 @@ function runPrettier(command, changedFiles) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, exec.getExecOutput(command, __spreadArray(__spreadArray([], changedFiles, true), ['--ignore-unknown'], false))];
+                case 0: return [4 /*yield*/, exec.getExecOutput(command, __spreadArray(['--', '--ignore-unknown'], changedFiles, true))];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
@@ -107818,7 +107818,6 @@ function runLint(command, changedFiles) {
                     eslint = new eslint_1.ESLint();
                     files = [];
                     eslintTarget = core.getInput('eslintTarget');
-                    console.log(eslintTarget);
                     i = 0;
                     _a.label = 1;
                 case 1:
@@ -107826,7 +107825,7 @@ function runLint(command, changedFiles) {
                     return [4 /*yield*/, eslint.isPathIgnored(changedFiles[i])];
                 case 2:
                     isIgnored = (_a.sent()) ||
-                        (eslintTarget ? !(0, minimatch_1.default)(changedFiles[i], eslintTarget) : false);
+                        (eslintTarget && !(0, minimatch_1.default)(changedFiles[i], eslintTarget));
                     if (!isIgnored) {
                         files.push(changedFiles[i]);
                     }
@@ -107836,7 +107835,7 @@ function runLint(command, changedFiles) {
                     return [3 /*break*/, 1];
                 case 4:
                     if (!files.length) return [3 /*break*/, 6];
-                    return [4 /*yield*/, exec.getExecOutput(command, files)];
+                    return [4 /*yield*/, exec.exec(command, files)];
                 case 5:
                     _a.sent();
                     return [3 /*break*/, 7];
