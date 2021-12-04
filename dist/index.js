@@ -107847,49 +107847,47 @@ function runLint(command, changedFiles) {
         });
     });
 }
-function runTest(command, files) {
+function runTest(command, changedFiles) {
     return __awaiter(this, void 0, void 0, function () {
-        var stdout, workspaces, changedWorkSpaces, errorDetected, _i, changedWorkSpaces_1, ws, _a;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        var stdout, workspaceList, workspaces, testPattern;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0: return [4 /*yield*/, exec.getExecOutput("find . -type d -name node_modules -prune -o -name package.json -printf '%h\\n'")];
                 case 1:
-                    stdout = (_b.sent()).stdout;
-                    workspaces = stdout.split(/\n/);
-                    changedWorkSpaces = [];
-                    files.forEach(function (file) {
-                        var match = '';
-                        workspaces.forEach(function (ws) {
-                            match = file.startsWith(ws) && ws.length > match.length ? ws : match;
+                    stdout = (_a.sent()).stdout;
+                    workspaceList = stdout.split(/\n/);
+                    workspaces = {};
+                    workspaceList.forEach(function (ws) {
+                        workspaces[ws] = {
+                            needTest: false,
+                            subWorkspaces: [],
+                        };
+                    });
+                    workspaceList.forEach(function (ws) {
+                        workspaceList.forEach(function (ws1) {
+                            if (ws !== ws1 && ws1.startsWith(ws)) {
+                                workspaces[ws].subWorkspaces.push(ws1);
+                            }
                         });
-                        if (match) {
-                            changedWorkSpaces.push(match);
+                    });
+                    changedFiles.forEach(function (file) {
+                        var parent = '';
+                        Object.keys(workspaces).forEach(function (ws) {
+                            if (file.startsWith(ws) && parent.length < ws.length) {
+                                parent = ws;
+                            }
+                        });
+                        if (parent) {
+                            workspaces[parent].needTest = true;
+                            workspaces[parent].subWorkspaces.forEach(function (ws) {
+                                delete workspaces[ws];
+                            });
                         }
                     });
-                    errorDetected = false;
-                    _i = 0, changedWorkSpaces_1 = changedWorkSpaces;
-                    _b.label = 2;
+                    testPattern = workspaceList.filter(function (ws) { var _a; return (_a = workspaces[ws]) === null || _a === void 0 ? void 0 : _a.needTest; });
+                    return [4 /*yield*/, exec.exec(command, testPattern)];
                 case 2:
-                    if (!(_i < changedWorkSpaces_1.length)) return [3 /*break*/, 7];
-                    ws = changedWorkSpaces_1[_i];
-                    _b.label = 3;
-                case 3:
-                    _b.trys.push([3, 5, , 6]);
-                    return [4 /*yield*/, exec.exec(command, [ws])];
-                case 4:
-                    _b.sent();
-                    return [3 /*break*/, 6];
-                case 5:
-                    _a = _b.sent();
-                    errorDetected = true;
-                    return [3 /*break*/, 6];
-                case 6:
-                    _i++;
-                    return [3 /*break*/, 2];
-                case 7:
-                    if (errorDetected) {
-                        throw new Error('Run test failed');
-                    }
+                    _a.sent();
                     return [2 /*return*/];
             }
         });
@@ -107909,24 +107907,25 @@ function main() {
                     _a.label = 1;
                 case 1:
                     if (!command) return [3 /*break*/, 10];
-                    if (!command.match(/prettier/)) return [3 /*break*/, 3];
+                    command = command.trim().replace(/\s+/g, ' ');
+                    if (!command.match(/\bprettier\b/)) return [3 /*break*/, 3];
                     return [4 /*yield*/, runPrettier(command, changedFiles)];
                 case 2:
                     _a.sent();
                     return [3 /*break*/, 9];
                 case 3:
-                    if (!command.match(/(eslint|lint)/)) return [3 /*break*/, 5];
+                    if (!command.match(/\b(eslint|lint)\b/)) return [3 /*break*/, 5];
                     return [4 /*yield*/, runLint(command, changedFiles)];
                 case 4:
                     _a.sent();
                     return [3 /*break*/, 9];
                 case 5:
-                    if (!command.match(/(jest|test)/)) return [3 /*break*/, 7];
+                    if (!command.match(/\b(test|tst|jest|t)\b/)) return [3 /*break*/, 7];
                     return [4 /*yield*/, runTest(command, changedFiles)];
                 case 6:
                     _a.sent();
                     return [3 /*break*/, 9];
-                case 7: return [4 /*yield*/, exec.getExecOutput(command, [])];
+                case 7: return [4 /*yield*/, exec.exec(command)];
                 case 8:
                     _a.sent();
                     _a.label = 9;

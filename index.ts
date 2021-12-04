@@ -31,37 +31,55 @@ async function runLint(command: string, changedFiles: string[]) {
   }
 }
 
-async function runTest(command: string, files: string[]) {
+async function runTest(command: string, changedFiles: string[]) {
   const { stdout } = await exec.getExecOutput(
     "find . -type d -name node_modules -prune -o -name package.json -printf '%h\\n'"
   );
 
-  const workspaces = stdout.split(/\n/);
-  const changedWorkSpaces: string[] = [];
-  files.forEach((file) => {
-    let match = '';
-    workspaces.forEach((ws) => {
-      match = file.startsWith(ws) && ws.length > match.length ? ws : match;
+  const workspaceList = stdout.split(/\n/);
+
+  const workspaces: {
+    [path: string]: {
+      needTest: boolean;
+      subWorkspaces: string[];
+    };
+  } = {};
+
+  workspaceList.forEach((ws) => {
+    workspaces[ws] = {
+      needTest: false,
+      subWorkspaces: [],
+    };
+  });
+
+  workspaceList.forEach((ws) => {
+    workspaceList.forEach((ws1) => {
+      if (ws !== ws1 && ws1.startsWith(ws)) {
+        workspaces[ws].subWorkspaces.push(ws1);
+      }
     });
-    if (match) {
-      changedWorkSpaces.push(match);
+  });
+
+  changedFiles.forEach((file) => {
+    let parent = '';
+
+    Object.keys(workspaces).forEach((ws) => {
+      if (file.startsWith(ws) && parent.length < ws.length) {
+        parent = ws;
+      }
+    });
+
+    if (parent) {
+      workspaces[parent].needTest = true;
+      workspaces[parent].subWorkspaces.forEach((ws) => {
+        delete workspaces[ws];
+      });
     }
   });
 
-  let errorDetected = false;
+  const testPattern = workspaceList.filter((ws) => workspaces[ws]?.needTest);
 
-  // eslint-disable-next-line no-restricted-syntax
-  for (const ws of changedWorkSpaces) {
-    try {
-      await exec.exec(command, [ws]);
-    } catch {
-      errorDetected = true;
-    }
-  }
-
-  if (errorDetected) {
-    throw new Error('Run test failed');
-  }
+  await exec.exec(command, testPattern);
 }
 
 async function main() {
@@ -73,14 +91,15 @@ async function main() {
     let command = getCommand(step);
 
     while (command) {
-      if (command.match(/prettier/)) {
+      command = command.trim().replace(/\s+/g, ' ');
+      if (command.match(/\bprettier\b/)) {
         await runPrettier(command, changedFiles);
-      } else if (command.match(/(eslint|lint)/)) {
+      } else if (command.match(/\b(eslint|lint)\b/)) {
         await runLint(command, changedFiles);
-      } else if (command.match(/(jest|test)/)) {
+      } else if (command.match(/\b(test|tst|jest|t)\b/)) {
         await runTest(command, changedFiles);
       } else {
-        await exec.getExecOutput(command, []);
+        await exec.exec(command);
       }
       step += 1;
       command = getCommand(step);
