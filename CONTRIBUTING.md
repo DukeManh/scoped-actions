@@ -4,7 +4,7 @@
 
 Contribute on Gitpod
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/DukeManh/scoped-actions)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/redwoodjs/redwood)
 
 ## Testing Action locally with [Act](https://github.com/nektos/act)
 
