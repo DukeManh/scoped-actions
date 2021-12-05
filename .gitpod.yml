@@ -1,0 +1,24 @@
+# List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
+checkoutLocation: scoped-actions
+workspaceLocation: .
+image:
+  file: .gitpod.Dockerfile
+
+tasks:
+  - name: scoped-actions
+    openMode: split-left
+    init: |
+      cd /workspace/scoped-actions
+      npm install
+      clear
+    command: cd /workspace/scoped-actions
+
+  - name: test-repo
+    openMode: split-right
+    init: |
+      cd /workspace
+      git clone -b test-repo --single-branch https://github.com/DukeManh/scoped-actions.git test-repo
+      cd /workspace/test-repo
+      npm install
+      clear
+    command: cd /workspace/test-repo

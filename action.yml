@@ -1,0 +1,12 @@
+name: 'scoped-actions'
+description: 'Run GitHub actions only on necessary scopes'
+inputs:
+  s-step:
+    description: 'Command to be run in order, can specify many commands, e.g, s-1: npm install, s-2 npm start'
+    required: false
+  eslintTarget:
+    description: 'Target eslint files'
+    required: false
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

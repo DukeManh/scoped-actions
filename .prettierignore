@@ -3,6 +3,7 @@ package-lock.json.
 node_modules/
 coverage/
 certs
+dist/
 .cache
 **/.eslintignore
 **/.prettierignore
