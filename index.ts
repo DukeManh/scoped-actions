@@ -1,6 +1,6 @@
 const greeting = 'Hello world';
 
-const unusedVar = 'Nice!';
+const unusedVar = '';
 
 const x = () => console.log(greeting);
 
