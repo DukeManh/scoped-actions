@@ -1,6 +1,6 @@
 {
   "name": "scoped-actions",
-  "version": "1.0.0",
+  "version": "0.9.2",
   "description": "GitHub Actions to run actions on changed scope",
   "main": "index.ts",
   "scripts": {
