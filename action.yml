@@ -2,7 +2,7 @@ name: 'scoped-actions'
 description: 'Run GitHub actions only on necessary scopes'
 inputs:
   files:
-    description: 'Changed and added files, should be ${{ steps.files.outputs.added_modified}}'
+    description: 'Changed and added files'
     required: true
   sn:
     description: 'Command to be run in order, can specify many commands, e.g, s1: npm install, s2 npm start'
