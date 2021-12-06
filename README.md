@@ -30,9 +30,13 @@ This action uses [jitterbit/get-changed-files](https://github.com/marketplace/ac
     token: ${{ github.token }}
 ```
 
+### `eslintTarget`
+
+Target glob pattern for ESLint, e.g: `'**/*.{jsx,tsx,ts,js}'`
+
 ### `s<n>`
 
-Commands to be run in order, e.g:
+Commands to be run in steps, e.g:
 
 ```yml
 s0: 'npm install'
