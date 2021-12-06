@@ -96,7 +96,7 @@ async function main() {
         await runPrettier(command, changedFiles);
       } else if (command.match(/\b(eslint|lint)\b/)) {
         await runLint(command, changedFiles);
-      } else if (command.match(/\b(test|tst|jest|t)\b/)) {
+      } else if (command.match(/\b(test|tst|jest)\b/)) {
         await runTest(command, changedFiles);
       } else {
         await exec.exec(command);

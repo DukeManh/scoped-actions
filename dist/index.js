@@ -107920,7 +107920,7 @@ function main() {
                     _a.sent();
                     return [3 /*break*/, 9];
                 case 5:
-                    if (!command.match(/\b(test|tst|jest|t)\b/)) return [3 /*break*/, 7];
+                    if (!command.match(/\b(test|tst|jest)\b/)) return [3 /*break*/, 7];
                     return [4 /*yield*/, runTest(command, changedFiles)];
                 case 6:
                     _a.sent();
